@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { portfolioImages } from "@/lib/data";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,6 +16,7 @@ export default function Portfolio() {
         .order("sort_order");
       return data || [];
     },
+    staleTime: 1000 * 60 * 5,
   });
 
   const images = dbPhotos.length > 0
@@ -41,15 +42,32 @@ export default function Portfolio() {
             transition={{ delay: i * 0.1 }}
             className="flex-shrink-0 w-56 h-56 rounded-xl overflow-hidden snap-center border border-border"
           >
-            <img
-              src={img.url}
-              alt={img.caption || `Corte ${i + 1}`}
-              className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-              loading="lazy"
-            />
+            <PortfolioImage src={img.url} alt={img.caption || `Corte ${i + 1}`} />
           </motion.div>
         ))}
       </div>
     </section>
+  );
+}
+
+function PortfolioImage({ src, alt }: { src: string; alt: string }) {
+  const [error, setError] = useState(false);
+
+  if (error) {
+    return (
+      <div className="w-full h-full bg-card flex items-center justify-center text-muted-foreground text-3xl">
+        ✂️
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+      loading="lazy"
+      onError={() => setError(true)}
+    />
   );
 }

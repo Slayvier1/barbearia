@@ -18,9 +18,11 @@ export function useServices() {
       const { data, error } = await supabase
         .from("services")
         .select("*")
+        .eq("active", true)
         .order("sort_order");
       if (error) throw error;
-      return data as ServiceRow[];
+      return (data || []) as ServiceRow[];
     },
+    staleTime: 1000 * 60 * 5,
   });
 }

@@ -18,9 +18,11 @@ export function useProducts() {
       const { data, error } = await supabase
         .from("products")
         .select("*")
+        .eq("active", true)
         .order("sort_order");
       if (error) throw error;
-      return data as ProductRow[];
+      return (data || []) as ProductRow[];
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
